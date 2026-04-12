@@ -163,6 +163,14 @@ export function setActive(state: SavageDeckState, id: string): SavageDeckState {
   return { ...state, activeCombatantId: id };
 }
 
+export function linkToken(state: SavageDeckState, combatantId: string, tokenId: string): SavageDeckState {
+  return updateCombatant(state, combatantId, { tokenId });
+}
+
+export function unlinkToken(state: SavageDeckState, combatantId: string): SavageDeckState {
+  return updateCombatant(state, combatantId, { tokenId: undefined });
+}
+
 export function putOnHold(state: SavageDeckState, id: string): SavageDeckState {
   const target = state.combatants.find((c) => c.id === id);
   if (!target?.card) return state;

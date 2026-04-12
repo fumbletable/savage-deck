@@ -13,6 +13,8 @@ import {
   endRound,
   sortedForDisplay,
   setActive,
+  linkToken,
+  unlinkToken,
 } from './lib/engine';
 import type { Combatant, Edge, SavageDeckState } from './lib/types';
 
@@ -220,6 +222,7 @@ function CombatantRow({
             )}
           </span>
         )}
+        {isGm && <LinkTokenButton c={c} state={state} write={write} />}
         {editable && isGm && (
           <button className="remove" onClick={() => write(removeCombatant(state, c.id))}>
             ✕
@@ -252,6 +255,50 @@ function EdgeToggles({
         </label>
       ))}
     </span>
+  );
+}
+
+function LinkTokenButton({
+  c,
+  state,
+  write,
+}: {
+  c: Combatant;
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  if (c.tokenId) {
+    return (
+      <button
+        className="link-btn linked"
+        title="Token linked. Click to unlink."
+        onClick={() => write(unlinkToken(state, c.id))}
+      >
+        🔗
+      </button>
+    );
+  }
+
+  const onLink = async () => {
+    setBusy(true);
+    try {
+      const sel = await OBR.player.getSelection();
+      if (!sel || sel.length === 0) {
+        await OBR.notification.show('Select a token on the map first, then click Link.', 'WARNING');
+        return;
+      }
+      await write(linkToken(state, c.id, sel[0]));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button className="link-btn" title="Link to selected map token" disabled={busy} onClick={onLink}>
+      Link
+    </button>
   );
 }
 
