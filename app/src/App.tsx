@@ -12,6 +12,7 @@ import {
   interruptFromHold,
   endRound,
   sortedForDisplay,
+  setActive,
 } from './lib/engine';
 import type { Combatant, Edge, SavageDeckState } from './lib/types';
 
@@ -171,10 +172,19 @@ function CombatantRow({
   showCard: boolean;
 }) {
   const cardVisible = c.card && (isGm || !c.hiddenFromPlayers || c.status === 'ACTED');
+  const isActive = state.activeCombatantId === c.id;
 
   return (
-    <li className={`combatant status-${c.status.toLowerCase()}`}>
-      <div className="row-main">
+    <li className={`combatant status-${c.status.toLowerCase()}${isActive ? ' active' : ''}`}>
+      <div
+        className="row-main"
+        onClick={() => {
+          if (isGm && showCard && c.status !== 'ACTED' && c.card) {
+            write(setActive(state, c.id));
+          }
+        }}
+        style={isGm && showCard && c.status !== 'ACTED' && c.card ? { cursor: 'pointer' } : undefined}
+      >
         <span className="name">
           {c.hiddenFromPlayers && !isGm ? '???' : c.name}
           <span className="type-tag">{c.type}</span>

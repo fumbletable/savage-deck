@@ -106,6 +106,16 @@ input { flex: 1; }
 }
 .combatant.status-acted { opacity: 0.5; }
 .combatant.status-on_hold { border-color: #b8862a; }
+.combatant.active {
+  border-color: #9b7ad8;
+  background: #2a2336;
+  box-shadow: 0 0 0 1px #9b7ad8, 0 0 12px rgba(155, 122, 216, 0.3);
+}
+.combatant.active .name::before {
+  content: '▶ ';
+  color: #9b7ad8;
+  font-size: 10px;
+}
 
 .row-main {
   display: flex;

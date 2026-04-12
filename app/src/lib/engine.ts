@@ -2,6 +2,17 @@ import type { SavageDeckState, Combatant, Edge } from './types';
 import type { CardCode } from './deck';
 import { shuffle, newDeck, isJoker, initiativeValue, rankValue } from './deck';
 
+function nextActiveId(combatants: Combatant[]): string | undefined {
+  const candidates = combatants.filter(
+    (c) => c.card && c.status === 'PENDING'
+  );
+  if (candidates.length === 0) return undefined;
+  const sorted = [...candidates].sort(
+    (a, b) => initiativeValue(b.card!) - initiativeValue(a.card!)
+  );
+  return sorted[0].id;
+}
+
 let idCounter = 0;
 function nextId(): string {
   idCounter += 1;
@@ -125,9 +136,9 @@ export function dealRound(state: SavageDeckState): SavageDeckState {
     };
   });
 
-  return {
+  const next = {
     ...state,
-    phase: 'ACTING',
+    phase: 'ACTING' as const,
     round: state.round + 1,
     combatants,
     deck: {
@@ -136,22 +147,37 @@ export function dealRound(state: SavageDeckState): SavageDeckState {
       jokerDrawnThisRound: state.deck.jokerDrawnThisRound || jokerSeen,
     },
   };
+  return { ...next, activeCombatantId: nextActiveId(combatants) };
 }
 
 export function markActed(state: SavageDeckState, id: string): SavageDeckState {
-  return updateCombatant(state, id, { status: 'ACTED' });
+  const next = updateCombatant(state, id, { status: 'ACTED' });
+  // Auto-advance active marker if we just completed the active one
+  if (state.activeCombatantId === id) {
+    return { ...next, activeCombatantId: nextActiveId(next.combatants) };
+  }
+  return next;
+}
+
+export function setActive(state: SavageDeckState, id: string): SavageDeckState {
+  return { ...state, activeCombatantId: id };
 }
 
 export function putOnHold(state: SavageDeckState, id: string): SavageDeckState {
   const target = state.combatants.find((c) => c.id === id);
   if (!target?.card) return state;
-  return {
+  const nextCombatants = state.combatants.map((c) =>
+    c.id === id ? { ...c, status: 'ON_HOLD' as const, card: undefined, jokerBonus: false } : c
+  );
+  const next = {
     ...state,
     deck: { ...state.deck, discarded: [...state.deck.discarded, target.card] },
-    combatants: state.combatants.map((c) =>
-      c.id === id ? { ...c, status: 'ON_HOLD', card: undefined, jokerBonus: false } : c
-    ),
+    combatants: nextCombatants,
   };
+  if (state.activeCombatantId === id) {
+    return { ...next, activeCombatantId: nextActiveId(nextCombatants) };
+  }
+  return next;
 }
 
 export function interruptFromHold(state: SavageDeckState, id: string): SavageDeckState {
@@ -186,6 +212,7 @@ export function endRound(state: SavageDeckState): SavageDeckState {
     phase: 'SETUP',
     combatants,
     deck: nextDeck,
+    activeCombatantId: undefined,
   };
 }
 
