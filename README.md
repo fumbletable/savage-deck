@@ -1,25 +1,56 @@
 # Savage Deck
 
-An Owlbear Rodeo extension for running Savage Worlds (SWADE / SW Pathfinder) Action Deck initiative properly — jokers, edges, on-hold, the lot.
+An Owlbear Rodeo extension for running Savage Worlds (SWADE / SW Pathfinder) Action Deck initiative. Handles jokers, on-hold, Quick and Level Headed automatically.
 
-## Status: scaffolding (v0.1.0)
+## Install in Owlbear Rodeo
 
-- [x] Plan ([PLAN.md](PLAN.md))
-- [x] Rules verified against SWADE core rulebook (Adventure Edition v4.2)
-- [x] Vite + React + TypeScript + OBR SDK scaffolded
-- [x] Role gate, ready hook, shared state via room metadata
-- [x] Start Combat / Reset (GM-only)
-- [ ] Combatant list (add/remove PCs, NPCs, Extras)
-- [ ] Deal Round — base pipeline
-- [ ] Turn order view + Mark Acted
-- [ ] On Hold + Interrupt
-- [ ] Joker +2 badge + end-of-round reshuffle
-- [ ] Quick edge (stretch for v1)
-- [ ] Level Headed / Improved LH (stretch for v1)
-- [ ] Token link via context menu
-- [ ] Deploy to Cloudflare Pages
+1. Open any OBR room (you'll be GM of rooms you create)
+2. Settings (⚙, bottom-left) → **Extensions** → **Add Extension**
+3. Paste: `https://fumbletable.github.io/savage-deck/manifest.json`
+4. Click **Add** → the Savage Deck icon appears in the top-left toolbar
 
-## Dev
+## Using it
+
+**Setup phase:**
+1. Click the Savage Deck icon → **Start Combat**
+2. Add combatants — type a name, pick PC / NPC / Extras, click Add. Or click **+ From Party** to pull connected players as PCs.
+3. Toggle edges on each combatant: **Q** (Quick), **LH** (Level Headed), **LH+** (Improved Level Headed)
+4. Click **Deal Round 1**
+
+**Acting phase:**
+- Combatants sort by Action Card rank (Ace high → Two low, Jokers act anytime)
+- NPC cards hidden from players until the NPC acts
+- For each combatant, GM clicks **Acted** when their turn finishes, or **Hold** to wait
+- **On Hold** characters float to top of the list with an **Interrupt** button
+- Joker bonus shows a highlighted card + reshuffle flag at end of round
+
+**End of round:**
+- Click **End Round**
+- If any joker was drawn, deck auto-reshuffles
+- On-hold combatants carry their hold into the next round (no new card dealt)
+
+## What's in v0.1 (this release)
+
+- Action Deck with proper tie-breaking (Spades > Hearts > Diamonds > Clubs)
+- Jokers: +2 bonus badge + end-of-round reshuffle
+- **Quick** edge: redraws until rank > 5
+- **Level Headed** / **Improved Level Headed**: draws 2/3, keeps best, stacks correctly with Quick
+- On Hold + Interrupt (with Athletics roll handled at the table)
+- Hidden NPC cards, auto-reveal on act
+- Multi-client sync via OBR room metadata
+- GM-only controls; players read-only view
+
+## Coming later
+
+- Hesitant hindrance (joker exception)
+- Tactician / Master Tactician (distribute cards to allied Extras)
+- Benny-for-new-card draw phase
+- Token linking (highlight the active combatant's token on the map)
+- "Current turn" auto-advance
+- Real card art instead of text
+- Sound effects
+
+## Local development
 
 ```bash
 cd app
@@ -27,31 +58,16 @@ npm install
 npm run dev
 ```
 
-To test inside OBR, the dev server URL needs to be HTTPS and reachable by the OBR app. Easiest:
+Dev server runs on `http://localhost:5173`. For testing inside OBR, you'll want the deployed preview URL (pushes to `main` auto-deploy to GitHub Pages in ~30 seconds).
 
-1. `npm run dev` → Vite serves on `http://localhost:5173`
-2. Use `ngrok http 5173` (or similar) to get an HTTPS URL
-3. In OBR → Settings → Extensions → paste `https://<ngrok>.ngrok.io/manifest.json`
+## Project docs
 
-Or build and deploy to Cloudflare Pages (production path — TBD).
-
-## Structure
-
-```
-app/
-  src/
-    lib/
-      deck.ts       — cards, shuffle, initiative value, labels
-      types.ts      — state shape, edges, combatant types
-      obr.ts        — OBR ready/role/shared-state hooks
-    App.tsx         — root UI (role-gated)
-    main.tsx        — entry
-    index.css       — styles
-  public/
-    manifest.json   — OBR extension manifest
-    icon.svg
-```
+- [PLAN.md](PLAN.md) — architecture, state machine, SWADE rules verified from the core rulebook
+- `app/src/lib/engine.ts` — pure functions (addCombatant, dealRound, endRound, etc.) — the SWADE logic, unit-testable
+- `app/src/lib/obr.ts` — OBR SDK integration (ready, role, shared state)
 
 ## License
 
-MIT (once published).
+MIT. See [LICENSE](LICENSE).
+
+Built by [Fumble Table](https://fumbletable.com).
