@@ -239,8 +239,12 @@ function CombatantRow({
           </span>
         )}
         {isGm && <LinkTokenButton c={c} state={state} write={write} />}
-        {editable && isGm && (
-          <button className="remove" onClick={() => write(removeCombatant(state, c.id))}>
+        {isGm && (
+          <button
+            className="remove"
+            title="Remove from combat"
+            onClick={() => write(removeCombatant(state, c.id))}
+          >
             ✕
           </button>
         )}

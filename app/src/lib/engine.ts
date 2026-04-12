@@ -37,7 +37,24 @@ export function addCombatant(
 }
 
 export function removeCombatant(state: SavageDeckState, id: string): SavageDeckState {
-  return { ...state, combatants: state.combatants.filter((c) => c.id !== id) };
+  const removed = state.combatants.find((c) => c.id === id);
+  const nextCombatants = state.combatants.filter((c) => c.id !== id);
+  // If removed combatant had a card, return it to the discard pile
+  let discarded = state.deck.discarded;
+  if (removed?.card) {
+    discarded = [...discarded, removed.card];
+    if (removed.discardedPicks) discarded = [...discarded, ...removed.discardedPicks];
+  }
+  const next: SavageDeckState = {
+    ...state,
+    combatants: nextCombatants,
+    deck: { ...state.deck, discarded },
+  };
+  // If the removed combatant was active, advance to the next
+  if (state.activeCombatantId === id) {
+    return { ...next, activeCombatantId: nextActiveId(nextCombatants) };
+  }
+  return next;
 }
 
 export function updateCombatant(
