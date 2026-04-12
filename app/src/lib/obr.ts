@@ -58,6 +58,66 @@ export function freshState(): SavageDeckState {
   return initialState(shuffle(newDeck()));
 }
 
+// Register context menus on tokens so GM can right-click to add combatants.
+// Called once on mount from App.
+export async function registerContextMenus() {
+  const mkIcon = (label: string) => [
+    { icon: '/icon.svg', label, filter: { roles: ['GM' as const], every: [{ key: 'layer', value: 'CHARACTER' as const }] } },
+  ];
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/add-pc',
+    icons: mkIcon('Add to Savage Deck (PC)'),
+    onClick: (context) => handleAddFromContext(context, 'PC'),
+  });
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/add-npc',
+    icons: mkIcon('Add to Savage Deck (NPC)'),
+    onClick: (context) => handleAddFromContext(context, 'NPC'),
+  });
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/add-extras',
+    icons: mkIcon('Add to Savage Deck (Extras)'),
+    onClick: (context) => handleAddFromContext(context, 'EXTRAS'),
+  });
+}
+
+async function handleAddFromContext(
+  context: { items: { id: string; name?: string; plainText?: string }[] },
+  type: 'PC' | 'NPC' | 'EXTRAS'
+) {
+  const meta = await OBR.room.getMetadata();
+  const state = (meta[METADATA_KEY] as SavageDeckState | undefined) ?? freshState();
+
+  let idCounter = 0;
+  const makeId = () => {
+    idCounter += 1;
+    return `c${Date.now().toString(36)}${idCounter}`;
+  };
+
+  const existing = new Set(state.combatants.map((c) => c.tokenId).filter(Boolean) as string[]);
+  let next = state;
+  for (const item of context.items) {
+    if (existing.has(item.id)) continue; // already linked, skip
+    next = {
+      ...next,
+      combatants: [
+        ...next.combatants,
+        {
+          id: makeId(),
+          name: item.name || item.plainText || 'Unnamed',
+          type,
+          hiddenFromPlayers: type !== 'PC',
+          tokenId: item.id,
+          edges: [],
+          status: 'PENDING',
+          jokerBonus: false,
+        },
+      ],
+    };
+  }
+  await OBR.room.setMetadata({ [METADATA_KEY]: next });
+}
+
 async function clearRings() {
   const existing = await OBR.scene.local.getItems((item) =>
     item.id.startsWith(RING_ID_PREFIX)
@@ -99,7 +159,7 @@ export function useActiveRing(ready: boolean, state: SavageDeckState | null) {
         .shapeType('CIRCLE')
         .width(size)
         .height(size)
-        .position({ x: token.position.x - size / 2, y: token.position.y - size / 2 })
+        .position(token.position)
         .fillOpacity(0)
         .strokeColor('#9b7ad8')
         .strokeWidth(8)
