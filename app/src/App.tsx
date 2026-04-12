@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import OBR from '@owlbear-rodeo/sdk';
-import { useObrReady, useRole, useSharedState, freshState } from './lib/obr';
+import { useObrReady, useRole, useSharedState, freshState, useActiveRing } from './lib/obr';
 import { cardLabel } from './lib/deck';
 import {
   addCombatant,
@@ -28,6 +28,7 @@ export default function App() {
   const ready = useObrReady();
   const role = useRole(ready);
   const { state, write } = useSharedState(ready);
+  useActiveRing(ready, state);
 
   if (!ready) return <div className="status">Connecting to Owlbear Rodeo…</div>;
   if (!role) return <div className="status">Loading role…</div>;
