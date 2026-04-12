@@ -1,0 +1,15 @@
+{
+  "manifest": 1,
+  "title": "Savage Deck",
+  "description": "Action Deck initiative tracker for Savage Worlds Adventure Edition (SWADE). Handles jokers, edges, and hold-state for you.",
+  "author": "Fumble Table",
+  "image": "/icon.svg",
+  "version": "0.1.0",
+  "action": {
+    "title": "Savage Deck",
+    "icon": "./icon.svg",
+    "url": "./index.html",
+    "height": 600,
+    "width": 420
+  }
+}

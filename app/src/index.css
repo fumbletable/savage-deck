@@ -1,0 +1,60 @@
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  color-scheme: light dark;
+  background: #1a1a1d;
+  color: #e8e8ea;
+}
+
+body { margin: 0; padding: 0; }
+#root { min-height: 100vh; }
+
+.panel {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2e2e33;
+}
+
+.panel h1 { font-size: 16px; margin: 0; font-weight: 600; }
+
+.role-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #2e2e33;
+  color: #a8a8ae;
+}
+
+.status, .empty { padding: 16px; text-align: center; }
+.muted { color: #8a8a90; font-size: 13px; }
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  color: #c8c8ce;
+}
+
+.joker-warn { color: #ffb347; font-weight: 600; }
+
+button {
+  background: #3a3a42;
+  border: 1px solid #4a4a52;
+  color: #e8e8ea;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+button:hover { background: #4a4a52; }

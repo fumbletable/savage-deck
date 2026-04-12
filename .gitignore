@@ -1,0 +1,19 @@
+# dependencies
+app/node_modules
+app/dist
+app/.vite
+
+# logs
+*.log
+npm-debug.log*
+
+# editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# env
+.env
+.env.local
