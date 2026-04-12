@@ -89,7 +89,7 @@ Dev server runs on `http://localhost:5173`. Inside OBR, pushes to `main` auto-de
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+GPL-3.0 — see [LICENSE](LICENSE). If you fork or modify, keep it free and share-alike.
 
 ## Credits
 
