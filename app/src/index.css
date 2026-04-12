@@ -196,3 +196,11 @@ input { flex: 1; }
   flex-wrap: wrap;
 }
 .add-combatant input { min-width: 100px; }
+
+.legend {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #8a8a90;
+  line-height: 1.6;
+}
+.legend strong { color: #b8b8bd; font-weight: 600; }

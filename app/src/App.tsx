@@ -15,10 +15,10 @@ import {
 } from './lib/engine';
 import type { Combatant, Edge, SavageDeckState } from './lib/types';
 
-const EDGES: { key: Edge; label: string; short: string }[] = [
-  { key: 'QUICK', label: 'Quick', short: 'Q' },
-  { key: 'LEVEL_HEADED', label: 'Level Headed', short: 'LH' },
-  { key: 'IMPROVED_LEVEL_HEADED', label: 'Improved LH', short: 'LH+' },
+const EDGES: { key: Edge; label: string; short: string; explain: string }[] = [
+  { key: 'QUICK', label: 'Quick', short: 'Q', explain: 'Quick: redraw any card of 5 or lower until a 6+ comes up.' },
+  { key: 'LEVEL_HEADED', label: 'Level Headed', short: 'LH', explain: 'Level Headed: draw 1 extra card each round, keep the best.' },
+  { key: 'IMPROVED_LEVEL_HEADED', label: 'Improved LH', short: 'LH+', explain: 'Improved Level Headed: draw 2 extra cards each round, keep the best.' },
 ];
 
 export default function App() {
@@ -119,6 +119,17 @@ function SetupView({
         ))}
       </ul>
       {isGm && <AddCombatant state={state} write={write} />}
+      {isGm && (
+        <div className="legend">
+          <strong>Edges:</strong>{' '}
+          {EDGES.map((e, i) => (
+            <span key={e.key}>
+              {i > 0 && ' · '}
+              <span className="edge-chip">{e.short}</span> {e.label}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -221,7 +232,7 @@ function EdgeToggles({
   return (
     <span className="edge-toggles">
       {EDGES.map((e) => (
-        <label key={e.key} title={e.label}>
+        <label key={e.key} title={e.explain}>
           <input
             type="checkbox"
             checked={c.edges.includes(e.key)}
