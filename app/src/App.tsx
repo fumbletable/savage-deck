@@ -1,4 +1,25 @@
+import { useState } from 'react';
+import OBR from '@owlbear-rodeo/sdk';
 import { useObrReady, useRole, useSharedState, freshState } from './lib/obr';
+import { cardLabel } from './lib/deck';
+import {
+  addCombatant,
+  removeCombatant,
+  toggleEdge,
+  dealRound,
+  markActed,
+  putOnHold,
+  interruptFromHold,
+  endRound,
+  sortedForDisplay,
+} from './lib/engine';
+import type { Combatant, Edge, SavageDeckState } from './lib/types';
+
+const EDGES: { key: Edge; label: string; short: string }[] = [
+  { key: 'QUICK', label: 'Quick', short: 'Q' },
+  { key: 'LEVEL_HEADED', label: 'Level Headed', short: 'LH' },
+  { key: 'IMPROVED_LEVEL_HEADED', label: 'Improved LH', short: 'LH+' },
+];
 
 export default function App() {
   const ready = useObrReady();
@@ -8,41 +29,256 @@ export default function App() {
   if (!ready) return <div className="status">Connecting to Owlbear Rodeo…</div>;
   if (!role) return <div className="status">Loading role…</div>;
 
-  return (
-    <div className="panel">
-      <header>
-        <h1>Savage Deck</h1>
-        <span className="role-badge">{role}</span>
-      </header>
+  const isGm = role === 'GM';
 
-      {!state ? (
+  if (!state) {
+    return (
+      <div className="panel">
+        <Header role={role} />
         <div className="empty">
           <p>No combat in progress.</p>
-          {role === 'GM' ? (
+          {isGm ? (
             <button onClick={() => write(freshState())}>Start Combat</button>
           ) : (
             <p className="muted">Waiting for GM to start combat.</p>
           )}
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="panel">
+      <Header role={role} />
+      <MetaBar state={state} />
+      {isGm && <GmControls state={state} write={write} />}
+      {state.phase === 'SETUP' ? (
+        <SetupView state={state} write={write} isGm={isGm} />
       ) : (
-        <div className="combat">
-          <div className="meta">
-            <span>Round {state.round}</span>
-            <span>Deck: {state.deck.remaining.length} left</span>
-            <span>Discard: {state.deck.discarded.length}</span>
-            <span>Phase: {state.phase}</span>
-            {state.deck.jokerDrawnThisRound && (
-              <span className="joker-warn">⚠ Joker — reshuffle at end</span>
-            )}
-          </div>
-          {role === 'GM' && (
-            <div className="controls">
-              <button onClick={() => write(freshState())}>Reset</button>
-            </div>
-          )}
-          <p className="muted">Combatant list + dealing coming next.</p>
-        </div>
+        <ActingView state={state} write={write} isGm={isGm} />
       )}
+    </div>
+  );
+}
+
+function Header({ role }: { role: string }) {
+  return (
+    <header>
+      <h1>Savage Deck</h1>
+      <span className="role-badge">{role}</span>
+    </header>
+  );
+}
+
+function MetaBar({ state }: { state: SavageDeckState }) {
+  return (
+    <div className="meta">
+      <span>Round {state.round}</span>
+      <span>Deck {state.deck.remaining.length}</span>
+      <span>Discard {state.deck.discarded.length}</span>
+      <span>Phase {state.phase}</span>
+      {state.deck.jokerDrawnThisRound && <span className="joker-warn">⚠ Joker — reshuffle at end</span>}
+    </div>
+  );
+}
+
+function GmControls({ state, write }: { state: SavageDeckState; write: (s: SavageDeckState) => Promise<void> }) {
+  return (
+    <div className="controls">
+      {state.phase === 'SETUP' && state.combatants.length > 0 && (
+        <button className="primary" onClick={() => write(dealRound(state))}>
+          Deal Round {state.round + 1}
+        </button>
+      )}
+      {state.phase === 'ACTING' && (
+        <button className="primary" onClick={() => write(endRound(state))}>
+          End Round
+        </button>
+      )}
+      <button onClick={() => write(freshState())}>Reset</button>
+    </div>
+  );
+}
+
+function SetupView({
+  state,
+  write,
+  isGm,
+}: {
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+  isGm: boolean;
+}) {
+  return (
+    <div className="setup">
+      <h2>Combatants ({state.combatants.length})</h2>
+      {state.combatants.length === 0 && <p className="muted">No combatants yet.</p>}
+      <ul className="combatant-list">
+        {state.combatants.map((c) => (
+          <CombatantRow key={c.id} c={c} state={state} write={write} isGm={isGm} editable={isGm} showCard={false} />
+        ))}
+      </ul>
+      {isGm && <AddCombatant state={state} write={write} />}
+    </div>
+  );
+}
+
+function ActingView({
+  state,
+  write,
+  isGm,
+}: {
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+  isGm: boolean;
+}) {
+  const sorted = sortedForDisplay(state.combatants);
+  return (
+    <div className="acting">
+      <ul className="combatant-list">
+        {sorted.map((c) => (
+          <CombatantRow key={c.id} c={c} state={state} write={write} isGm={isGm} editable={false} showCard={true} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function CombatantRow({
+  c,
+  state,
+  write,
+  isGm,
+  editable,
+  showCard,
+}: {
+  c: Combatant;
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+  isGm: boolean;
+  editable: boolean;
+  showCard: boolean;
+}) {
+  const cardVisible = c.card && (isGm || !c.hiddenFromPlayers || c.status === 'ACTED');
+
+  return (
+    <li className={`combatant status-${c.status.toLowerCase()}`}>
+      <div className="row-main">
+        <span className="name">
+          {c.hiddenFromPlayers && !isGm ? '???' : c.name}
+          <span className="type-tag">{c.type}</span>
+        </span>
+        {showCard && c.card && (
+          <span className={`card ${c.jokerBonus ? 'joker' : ''}`}>
+            {cardVisible ? cardLabel(c.card) : '🂠'}
+          </span>
+        )}
+        {c.status === 'ON_HOLD' && <span className="hold-badge">ON HOLD</span>}
+        {c.status === 'ACTED' && <span className="acted-badge">✓</span>}
+      </div>
+      <div className="row-details">
+        {c.edges.length > 0 && (
+          <span className="edges">
+            {c.edges.map((e) => {
+              const meta = EDGES.find((x) => x.key === e);
+              return meta ? <span key={e} className="edge-chip">{meta.short}</span> : null;
+            })}
+          </span>
+        )}
+        {editable && isGm && <EdgeToggles c={c} state={state} write={write} />}
+        {isGm && state.phase === 'ACTING' && (
+          <span className="row-actions">
+            {c.status === 'PENDING' && (
+              <>
+                <button onClick={() => write(markActed(state, c.id))}>Acted</button>
+                <button onClick={() => write(putOnHold(state, c.id))}>Hold</button>
+              </>
+            )}
+            {c.status === 'ON_HOLD' && (
+              <button onClick={() => write(interruptFromHold(state, c.id))}>Interrupt</button>
+            )}
+          </span>
+        )}
+        {editable && isGm && (
+          <button className="remove" onClick={() => write(removeCombatant(state, c.id))}>
+            ✕
+          </button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function EdgeToggles({
+  c,
+  state,
+  write,
+}: {
+  c: Combatant;
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+}) {
+  return (
+    <span className="edge-toggles">
+      {EDGES.map((e) => (
+        <label key={e.key} title={e.label}>
+          <input
+            type="checkbox"
+            checked={c.edges.includes(e.key)}
+            onChange={() => write(toggleEdge(state, c.id, e.key))}
+          />
+          {e.short}
+        </label>
+      ))}
+    </span>
+  );
+}
+
+function AddCombatant({
+  state,
+  write,
+}: {
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+}) {
+  const [name, setName] = useState('');
+  const [type, setType] = useState<Combatant['type']>('PC');
+
+  const submit = async () => {
+    if (!name.trim()) return;
+    await write(addCombatant(state, { name: name.trim(), type }));
+    setName('');
+  };
+
+  const addFromParty = async () => {
+    const players = await OBR.party.getPlayers();
+    const existing = new Set(state.combatants.map((c) => c.name.toLowerCase()));
+    let next = state;
+    for (const p of players) {
+      if (p.role === 'PLAYER' && !existing.has(p.name.toLowerCase())) {
+        next = addCombatant(next, { name: p.name, type: 'PC', hiddenFromPlayers: false });
+      }
+    }
+    await write(next);
+  };
+
+  return (
+    <div className="add-combatant">
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && submit()}
+        placeholder="Combatant name"
+      />
+      <select value={type} onChange={(e) => setType(e.target.value as Combatant['type'])}>
+        <option value="PC">PC</option>
+        <option value="NPC">NPC</option>
+        <option value="EXTRAS">Extras</option>
+      </select>
+      <button onClick={submit}>Add</button>
+      <button className="secondary" onClick={addFromParty}>
+        + From Party
+      </button>
     </div>
   );
 }

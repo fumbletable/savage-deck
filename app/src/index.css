@@ -1,32 +1,34 @@
 :root {
   font-family: system-ui, -apple-system, sans-serif;
-  color-scheme: light dark;
+  color-scheme: dark;
   background: #1a1a1d;
   color: #e8e8ea;
+  font-size: 14px;
 }
 
 body { margin: 0; padding: 0; }
 #root { min-height: 100vh; }
 
 .panel {
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.panel header {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #2e2e33;
 }
 
-.panel h1 { font-size: 16px; margin: 0; font-weight: 600; }
+h1 { font-size: 15px; margin: 0; font-weight: 600; }
+h2 { font-size: 13px; margin: 0 0 6px; font-weight: 600; color: #b8b8bd; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .role-badge {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 2px 8px;
@@ -35,26 +37,162 @@ body { margin: 0; padding: 0; }
   color: #a8a8ae;
 }
 
-.status, .empty { padding: 16px; text-align: center; }
-.muted { color: #8a8a90; font-size: 13px; }
+.status, .empty { padding: 12px; text-align: center; }
+.muted { color: #8a8a90; font-size: 12px; }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  font-size: 13px;
+  gap: 8px 12px;
+  font-size: 12px;
   color: #c8c8ce;
+  padding: 6px 8px;
+  background: #232327;
+  border-radius: 4px;
 }
-
 .joker-warn { color: #ffb347; font-weight: 600; }
+
+.controls { display: flex; gap: 6px; flex-wrap: wrap; }
 
 button {
   background: #3a3a42;
   border: 1px solid #4a4a52;
   color: #e8e8ea;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
 }
 button:hover { background: #4a4a52; }
+button.primary { background: #6b4ba8; border-color: #7a5ab8; }
+button.primary:hover { background: #7a5ab8; }
+button.secondary { background: transparent; }
+button.remove {
+  padding: 2px 6px;
+  font-size: 10px;
+  background: transparent;
+  border-color: transparent;
+  color: #8a8a90;
+}
+button.remove:hover { color: #e88; border-color: #5a3a3a; }
+
+input, select {
+  background: #232327;
+  border: 1px solid #3a3a42;
+  color: #e8e8ea;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+input { flex: 1; }
+
+.combatant-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combatant {
+  background: #232327;
+  border: 1px solid #2e2e33;
+  border-radius: 4px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.combatant.status-acted { opacity: 0.5; }
+.combatant.status-on_hold { border-color: #b8862a; }
+
+.row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.name {
+  font-weight: 500;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.type-tag {
+  font-size: 9px;
+  background: #3a3a42;
+  color: #a8a8ae;
+  padding: 1px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.card {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: #3a3a42;
+  border-radius: 3px;
+  min-width: 40px;
+  text-align: center;
+}
+.card.joker {
+  background: #b8862a;
+  color: #1a1a1d;
+}
+.hold-badge {
+  font-size: 9px;
+  background: #b8862a;
+  color: #1a1a1d;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.acted-badge {
+  font-size: 12px;
+  color: #6b9a6b;
+}
+
+.row-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+.edges { display: flex; gap: 3px; }
+.edge-chip {
+  background: #2e2e33;
+  color: #a8a8ae;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.edge-toggles {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.edge-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #8a8a90;
+  font-size: 10px;
+  cursor: pointer;
+}
+.edge-toggles input { margin: 0; flex: none; }
+
+.row-actions { display: flex; gap: 4px; margin-left: auto; }
+.row-actions button { padding: 2px 6px; font-size: 10px; }
+
+.add-combatant {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.add-combatant input { min-width: 100px; }
