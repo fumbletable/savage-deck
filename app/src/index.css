@@ -140,15 +140,29 @@ input { flex: 1; }
 }
 .card {
   font-size: 14px;
-  font-weight: 600;
-  padding: 2px 6px;
-  background: #3a3a42;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: #f4f1e8;
+  border: 1px solid #c8c2b0;
   border-radius: 3px;
   min-width: 40px;
   text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.card.suit-red { color: #c0392b; }
+.card.suit-black { color: #1a1a1d; }
+.card.hidden-card {
+  background: #3a3a42;
+  border-color: #2e2e33;
+  color: #8a8a90;
+  font-family: inherit;
+  box-shadow: none;
+  font-size: 16px;
 }
 .card.joker {
-  background: #b8862a;
+  background: #f9d56e;
+  border-color: #c9a93e;
   color: #1a1a1d;
 }
 .hold-badge {

@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import OBR from '@owlbear-rodeo/sdk';
 import { useObrReady, useRole, useSharedState, freshState, useActiveRing, registerContextMenus } from './lib/obr';
 import { cardLabel } from './lib/deck';
+import type { CardCode } from './lib/deck';
+
+function suitClass(card: CardCode): string {
+  if (card === 'JR' || card === 'JB') return '';
+  const suit = card[1];
+  return suit === 'H' || suit === 'D' ? 'suit-red' : 'suit-black';
+}
 import {
   addCombatant,
   removeCombatant,
@@ -197,7 +204,11 @@ function CombatantRow({
           <span className="type-tag">{c.type}</span>
         </span>
         {showCard && c.card && (
-          <span className={`card ${c.jokerBonus ? 'joker' : ''}`}>
+          <span
+            className={`card ${c.jokerBonus ? 'joker' : ''} ${
+              cardVisible ? suitClass(c.card) : 'hidden-card'
+            }`}
+          >
             {cardVisible ? cardLabel(c.card) : '🂠'}
           </span>
         )}
