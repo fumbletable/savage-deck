@@ -70,4 +70,8 @@ Dev server runs on `http://localhost:5173`. For testing inside OBR, you'll want 
 
 MIT. See [LICENSE](LICENSE).
 
+## Credits
+
+- Toolbar icon: ["Card Ace Clubs"](https://game-icons.net/1x1/aussiesim/card-ace-clubs.html) by aussiesim, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), via [game-icons.net](https://game-icons.net).
+
 Built by [Fumble Table](https://fumbletable.com).
