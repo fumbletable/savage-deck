@@ -409,13 +409,15 @@ function StatActingRow({
         title="Shaken"
         onClick={() => write(toggleShaken(state, c.id))}
       >S</button>
-      <span className="stat-counter" title="Bennies">
+      <span className="stat-counter benny-counter" title="Bennies">
         <button className="benny-btn" onClick={() => write(setBennies(state, c.id, s.bennies - 1))}>−</button>
-        <span className="stat-val"><span className="stat-label" style={{color:'#c9a800'}}>B</span>{s.bennies}</span>
+        <span className="benny-coin">{s.bennies}</span>
         <button className="benny-btn" onClick={() => write(setBennies(state, c.id, s.bennies + 1))}>+</button>
       </span>
-      <span className="stat-passive stat-label-t" title="Toughness (base + armour)">T{s.toughness.base}({s.toughness.armour})</span>
-      <span className="stat-passive stat-label-p" title="Parry">P{s.parry}</span>
+      <span className="stat-tp-group">
+        <span className="stat-passive stat-label-t" title="Toughness (base + armour)">T{s.toughness.base}({s.toughness.armour})</span>
+        <span className="stat-passive stat-label-p" title="Parry">P{s.parry}</span>
+      </span>
     </div>
   );
 }

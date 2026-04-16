@@ -123,8 +123,8 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
       attach(
         buildText()
           .id(id(`${suffix}-txt`))
-          // Y is set manually: top-left anchored, so subtract ~0.6× font height to visually centre
-          .position({ x: cx - bSize / 2, y: cy - fs * 0.6 })
+          // Y is set manually: top-left anchored, subtract ~0.4× font height to visually centre
+          .position({ x: cx - bSize / 2, y: cy - fs * 0.4 })
           .width(bSize)
           .plainText(text)
           .textType('PLAIN')

@@ -325,6 +325,29 @@ input { flex: 1; }
 .stat-passive.stat-label-t { color: #e8a050; }
 .stat-passive.stat-label-p { color: #50c8e8; }
 
-/* Benny counter */
-.benny-btn { color: #c9a800; border-color: #4a4420; }
+/* Benny counter — gold coin style */
+.benny-counter { margin-left: 6px; gap: 2px; }
+.benny-btn { color: #c9a800; border-color: #4a4420; padding: 1px 5px; }
 .benny-btn:hover { color: #e8c800; }
+.benny-coin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #c9a800;
+  border: 1px solid #a07800;
+  color: #1a1a1d;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* T/P group pushed to right */
+.stat-tp-group {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
