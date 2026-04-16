@@ -354,6 +354,7 @@ input { flex: 1; }
   font-size: 12px;
   background: #1a1a1d;
 }
+.type-tag.muted { color: #6a6a72; background: transparent; }
 
 /* Passive T/P display in acting view */
 .stat-passive {
