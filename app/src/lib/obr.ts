@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import OBR, { buildShape } from '@owlbear-rodeo/sdk';
 import { METADATA_KEY, TOKEN_STATS_KEY, initialState, migrateState, defaultStats, type SavageDeckState, type CombatantStats } from './types';
+import { setWounds, toggleShaken } from './engine';
 import { newDeck, shuffle } from './deck';
 
 const RING_ID_PREFIX = 'savage-deck/active-ring';
@@ -74,27 +75,72 @@ export function freshState(): SavageDeckState {
   return initialState(shuffle(newDeck()));
 }
 
-// Register context menus on tokens so GM can right-click to add combatants.
-// Called once on mount from App.
+// Register context menus on tokens so GM can right-click to add combatants
+// and adjust wounds/shaken in-play. Called once on mount from App.
 export async function registerContextMenus() {
-  const mkIcon = (label: string) => [
-    { icon: '/icon.svg', label, filter: { roles: ['GM' as const], every: [{ key: 'layer', value: 'CHARACTER' as const }] } },
-  ];
+  const gmChar = { roles: ['GM' as const], every: [{ key: 'layer', value: 'CHARACTER' as const }] };
+  const icon = (label: string) => [{ icon: '/icon.svg', label, filter: gmChar }];
+
   await OBR.contextMenu.create({
     id: 'com.fumbletable.savage-deck/add-pc',
-    icons: mkIcon('Add to Savage Deck (PC)'),
+    icons: icon('Add to Savage Deck (PC)'),
     onClick: (context) => handleAddFromContext(context, 'PC'),
   });
   await OBR.contextMenu.create({
     id: 'com.fumbletable.savage-deck/add-npc',
-    icons: mkIcon('Add to Savage Deck (NPC)'),
+    icons: icon('Add to Savage Deck (NPC)'),
     onClick: (context) => handleAddFromContext(context, 'NPC'),
   });
   await OBR.contextMenu.create({
     id: 'com.fumbletable.savage-deck/add-extras',
-    icons: mkIcon('Add to Savage Deck (Extras)'),
+    icons: icon('Add to Savage Deck (Extras)'),
     onClick: (context) => handleAddFromContext(context, 'EXTRAS'),
   });
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/wound-up',
+    icons: icon('Wound +1'),
+    onClick: (context) => handleWoundAdjust(context, +1),
+  });
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/wound-down',
+    icons: icon('Wound −1'),
+    onClick: (context) => handleWoundAdjust(context, -1),
+  });
+  await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/shaken-toggle',
+    icons: icon('Toggle Shaken'),
+    onClick: (context) => handleShakenToggle(context),
+  });
+}
+
+async function handleWoundAdjust(context: { items: { id: string }[] }, delta: number) {
+  const meta = await OBR.room.getMetadata();
+  const state = meta[METADATA_KEY] as SavageDeckState | undefined;
+  if (!state) return;
+  const tokenIds = new Set(context.items.map((i) => i.id));
+  let next = state;
+  for (const c of state.combatants) {
+    if (c.tokenId && tokenIds.has(c.tokenId)) {
+      next = setWounds(next, c.id, c.stats.wounds.current + delta);
+    }
+  }
+  await OBR.room.setMetadata({ [METADATA_KEY]: next });
+  syncStatsToTokens(next).catch(() => {});
+}
+
+async function handleShakenToggle(context: { items: { id: string }[] }) {
+  const meta = await OBR.room.getMetadata();
+  const state = meta[METADATA_KEY] as SavageDeckState | undefined;
+  if (!state) return;
+  const tokenIds = new Set(context.items.map((i) => i.id));
+  let next = state;
+  for (const c of state.combatants) {
+    if (c.tokenId && tokenIds.has(c.tokenId)) {
+      next = toggleShaken(next, c.id);
+    }
+  }
+  await OBR.room.setMetadata({ [METADATA_KEY]: next });
+  syncStatsToTokens(next).catch(() => {});
 }
 
 async function handleAddFromContext(

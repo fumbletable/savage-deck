@@ -10,7 +10,6 @@ function suitClass(card: CardCode): string {
   return suit === 'H' || suit === 'D' ? 'suit-red' : 'suit-black';
 }
 import {
-  addCombatant,
   removeCombatant,
   toggleEdge,
   dealRound,
@@ -139,7 +138,6 @@ function SetupView({
           <CombatantRow key={c.id} c={c} state={state} write={write} isGm={isGm} editable={isGm} showCard={false} />
         ))}
       </ul>
-      {isGm && <AddCombatant state={state} write={write} />}
       {isGm && (
         <div className="legend">
           <strong>Edges:</strong>{' '}
@@ -398,8 +396,13 @@ function StatActingRow({
       <span className="stat-counter" title="Wounds">
         <button onClick={() => write(setWounds(state, c.id, s.wounds.current - 1))}>−</button>
         <span className={`stat-val${s.wounds.current > 0 ? ' stat-wounded' : ''}`}>
-          {s.wounds.current}/{s.wounds.max}
+          {s.wounds.current}/
         </span>
+        <input
+          type="number" className="stat-input" value={s.wounds.max} min={1} max={10}
+          title="Max wounds"
+          onChange={(e) => write(setMaxWounds(state, c.id, +e.target.value))}
+        />
         <button onClick={() => write(setWounds(state, c.id, s.wounds.current + 1))}>+</button>
       </span>
       <button
@@ -418,51 +421,3 @@ function StatActingRow({
   );
 }
 
-function AddCombatant({
-  state,
-  write,
-}: {
-  state: SavageDeckState;
-  write: (s: SavageDeckState) => Promise<void>;
-}) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<Combatant['type']>('PC');
-
-  const submit = async () => {
-    if (!name.trim()) return;
-    await write(addCombatant(state, { name: name.trim(), type }));
-    setName('');
-  };
-
-  const addFromParty = async () => {
-    const players = await OBR.party.getPlayers();
-    const existing = new Set(state.combatants.map((c) => c.name.toLowerCase()));
-    let next = state;
-    for (const p of players) {
-      if (p.role === 'PLAYER' && !existing.has(p.name.toLowerCase())) {
-        next = addCombatant(next, { name: p.name, type: 'PC', hiddenFromPlayers: false });
-      }
-    }
-    await write(next);
-  };
-
-  return (
-    <div className="add-combatant">
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && submit()}
-        placeholder="Combatant name"
-      />
-      <select value={type} onChange={(e) => setType(e.target.value as Combatant['type'])}>
-        <option value="PC">PC</option>
-        <option value="NPC">NPC</option>
-        <option value="EXTRAS">Extras</option>
-      </select>
-      <button onClick={submit}>Add</button>
-      <button className="secondary" onClick={addFromParty}>
-        + From Party
-      </button>
-    </div>
-  );
-}
