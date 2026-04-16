@@ -23,6 +23,7 @@ function attach<B extends ReturnType<typeof buildShape> | ReturnType<typeof buil
 ): B {
   return (builder as ReturnType<typeof buildShape>)
     .layer('ATTACHMENT')
+    .zIndex(1)
     .locked(true)
     .attachedTo(tokenId)
     .disableAttachmentBehavior(['ROTATION', 'SCALE']) as unknown as B;

@@ -234,6 +234,7 @@ export function useActiveRing(ready: boolean, state: SavageDeckState | null) {
         .strokeWidth(8)
         .strokeOpacity(0.9)
         .layer('ATTACHMENT')
+        .zIndex(0)
         .locked(true)
         .attachedTo(token.id)
         .disableAttachmentBehavior(['ROTATION', 'SCALE'])
