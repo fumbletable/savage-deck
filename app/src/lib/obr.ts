@@ -97,6 +97,14 @@ export async function registerContextMenus() {
     onClick: (context) => handleAddFromContext(context, 'EXTRAS'),
   });
   await OBR.contextMenu.create({
+    id: 'com.fumbletable.savage-deck/edit-stats',
+    icons: icon('Edit Stats'),
+    embed: {
+      url: 'https://fumbletable.github.io/savage-deck/stats.html',
+      height: 160,
+    },
+  });
+  await OBR.contextMenu.create({
     id: 'com.fumbletable.savage-deck/wound-up',
     icons: icon('Wound +1'),
     onClick: (context) => handleWoundAdjust(context, +1),

@@ -318,6 +318,43 @@ input { flex: 1; }
   color: #ffffff;
 }
 
+/* ── Context menu stats embed ─────────────────────────────────────────────── */
+
+.embed-panel {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #1a1a1d;
+}
+.embed-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.embed-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8e8ea;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.embed-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.embed-wounds { margin-right: 4px; }
+.embed-tp { padding-top: 2px; border-top: 1px solid #2e2e33; }
+.embed-status {
+  padding: 10px;
+  color: #8a8a90;
+  font-size: 12px;
+  background: #1a1a1d;
+}
+
 /* Passive T/P display in acting view */
 .stat-passive {
   font-size: 10px;

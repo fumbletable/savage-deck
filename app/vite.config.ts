@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         background: resolve(__dirname, 'background.html'),
+        stats: resolve(__dirname, 'stats.html'),
       },
     },
   },
