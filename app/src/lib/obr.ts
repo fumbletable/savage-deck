@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import OBR, { buildShape } from '@owlbear-rodeo/sdk';
-import { METADATA_KEY, initialState, migrateState, defaultStats, type SavageDeckState } from './types';
+import { METADATA_KEY, TOKEN_STATS_KEY, initialState, migrateState, defaultStats, type SavageDeckState, type CombatantStats } from './types';
 import { newDeck, shuffle } from './deck';
 
 const RING_ID_PREFIX = 'savage-deck/active-ring';
@@ -47,9 +47,27 @@ export function useSharedState(ready: boolean): {
 
   const write = async (next: SavageDeckState) => {
     await OBR.room.setMetadata({ [METADATA_KEY]: next });
+    syncStatsToTokens(next).catch(() => {});
   };
 
   return { state, write };
+}
+
+// ── Token metadata persistence ────────────────────────────────────────────────
+
+/** Write each linked combatant's stats onto its token so they survive a Reset. */
+async function syncStatsToTokens(state: SavageDeckState): Promise<void> {
+  const linked = state.combatants.filter((c) => c.tokenId && c.stats);
+  if (linked.length === 0) return;
+  await OBR.scene.items.updateItems(
+    linked.map((c) => c.tokenId!),
+    (items) => {
+      for (const item of items) {
+        const c = linked.find((lc) => lc.tokenId === item.id);
+        if (c) item.metadata[TOKEN_STATS_KEY] = c.stats;
+      }
+    }
+  );
 }
 
 export function freshState(): SavageDeckState {
@@ -83,7 +101,10 @@ async function handleAddFromContext(
   context: { items: { id: string; name?: string; plainText?: string }[] },
   type: 'PC' | 'NPC' | 'EXTRAS'
 ) {
-  const meta = await OBR.room.getMetadata();
+  const [meta, fullItems] = await Promise.all([
+    OBR.room.getMetadata(),
+    OBR.scene.items.getItems(context.items.map((i) => i.id)),
+  ]);
   const state = (meta[METADATA_KEY] as SavageDeckState | undefined) ?? freshState();
 
   let idCounter = 0;
@@ -96,6 +117,9 @@ async function handleAddFromContext(
   let next = state;
   for (const item of context.items) {
     if (existing.has(item.id)) continue; // already linked, skip
+    const fullItem = fullItems.find((fi) => fi.id === item.id);
+    // Restore persisted stats if this token has been in a previous combat
+    const savedStats = fullItem?.metadata[TOKEN_STATS_KEY] as CombatantStats | undefined;
     next = {
       ...next,
       combatants: [
@@ -109,7 +133,7 @@ async function handleAddFromContext(
           edges: [],
           status: 'PENDING',
           jokerBonus: false,
-          stats: defaultStats(type),
+          stats: savedStats ?? defaultStats(type),
         },
       ],
     };

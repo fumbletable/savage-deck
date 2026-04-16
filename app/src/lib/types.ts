@@ -54,6 +54,7 @@ export interface SavageDeckState {
 }
 
 export const METADATA_KEY = 'com.fumbletable.savage-deck/state';
+export const TOKEN_STATS_KEY = 'com.fumbletable.savage-deck/stats';
 
 /** Ensures old state (pre-stats) has defaults on every combatant. */
 export function migrateState(raw: unknown): SavageDeckState | null {

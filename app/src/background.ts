@@ -143,14 +143,14 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
   // ── Parry (bottom-right, teal) ────────────────────────────────────────────
   addBadge('parry', x + offset, y + offset, 'RECTANGLE', '#111111', 0.85, '#2a8aaa', String(combatant.stats.parry), '#50c8e8');
 
-  // ── Bennies (top-left, gold) — hidden when 0 ─────────────────────────────
+  // ── Bennies (top-left, gold coin) — hidden when 0 ────────────────────────
   if (combatant.stats.bennies > 0) {
-    addBadge('benny', x - offset, y - offset, 'CIRCLE', '#111111', 0.85, '#c9a800', String(combatant.stats.bennies), '#e6c84a');
+    addBadge('benny', x - offset, y - offset, 'CIRCLE', '#c9a800', 1, '#a07800', String(combatant.stats.bennies), '#1a1a1d');
   }
 
-  // ── Shaken (top-right, yellow) — hidden when not shaken ──────────────────
+  // ── Shaken (top-right, red) — hidden when not shaken ─────────────────────
   if (combatant.stats.shaken) {
-    addBadge('shaken', x + offset, y - offset, 'CIRCLE', '#e6a817', 1, '#00000040', 'S', '#000000', 900);
+    addBadge('shaken', x + offset, y - offset, 'CIRCLE', '#c0392b', 1, '#8b0000', 'S', '#ffffff', 900);
   }
 
   return items;
