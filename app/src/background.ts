@@ -108,7 +108,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
     text: string, textColor: string,
     fontWeight = 700
   ) => {
-    const tl = { x: cx - bSize / 2, y: cy - bSize / 2 }; // top-left corner
+    const tl = { x: cx - bSize / 2, y: cy - bSize / 2 }; // top-left corner for shape
     items.push(
       attach(
         buildShape()
@@ -123,8 +123,9 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
       attach(
         buildText()
           .id(id(`${suffix}-txt`))
-          .position(tl)
-          .width(bSize).height(bSize)
+          // Y is set manually: top-left anchored, so subtract ~0.6× font height to visually centre
+          .position({ x: cx - bSize / 2, y: cy - fs * 0.6 })
+          .width(bSize)
           .plainText(text)
           .textType('PLAIN')
           .fillColor(textColor).fillOpacity(1)
@@ -133,7 +134,6 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
           .fontSize(fs)
           .fontWeight(fontWeight)
           .textAlign('CENTER')
-          .textAlignVertical('MIDDLE')
           .lineHeight(1),
         tid
       ).build() as Item

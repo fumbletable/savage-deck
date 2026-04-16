@@ -390,7 +390,6 @@ function StatActingRow({
   write: (s: SavageDeckState) => Promise<void>;
 }) {
   const s = c.stats;
-  const toughTotal = s.toughness.base + s.toughness.armour;
   return (
     <div className="row-stats">
       <span className="stat-counter" title="Wounds">
@@ -415,7 +414,7 @@ function StatActingRow({
         <span className="stat-val"><span className="stat-label" style={{color:'#c9a800'}}>B</span>{s.bennies}</span>
         <button className="benny-btn" onClick={() => write(setBennies(state, c.id, s.bennies + 1))}>+</button>
       </span>
-      <span className="stat-passive stat-label-t" title={`Toughness ${s.toughness.base}(${s.toughness.armour})`}>T{toughTotal}</span>
+      <span className="stat-passive stat-label-t" title="Toughness (base + armour)">T{s.toughness.base}({s.toughness.armour})</span>
       <span className="stat-passive stat-label-p" title="Parry">P{s.parry}</span>
     </div>
   );
