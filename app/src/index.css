@@ -284,8 +284,10 @@ input { flex: 1; }
 .stat-counter {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
+/* Wound counter specifically — tight grouping + right margin to separate from S */
+.stat-counter:first-child { margin-right: 4px; }
 .stat-counter button {
   padding: 1px 5px;
   font-size: 12px;

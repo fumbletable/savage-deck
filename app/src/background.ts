@@ -123,9 +123,9 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
       attach(
         buildText()
           .id(id(`${suffix}-txt`))
-          // Y is set manually: top-left anchored, subtract ~0.4× font height to visually centre
-          .position({ x: cx - bSize / 2, y: cy - fs * 0.4 })
-          .width(bSize)
+          // Centre text in badge: position the bSize×bSize box at tl, rely on CENTER+MIDDLE alignment
+          .position({ x: cx - bSize / 2, y: cy - bSize / 2 })
+          .width(bSize).height(bSize)
           .plainText(text)
           .textType('PLAIN')
           .fillColor(textColor).fillOpacity(1)
@@ -134,7 +134,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
           .fontSize(fs)
           .fontWeight(fontWeight)
           .textAlign('CENTER')
-          .lineHeight(1),
+          .textAlignVertical('MIDDLE'),
         tid
       ).build() as Item
     );
