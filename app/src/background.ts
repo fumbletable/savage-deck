@@ -50,16 +50,19 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
   const fs     = Math.round(dpi * 0.13);       // font size
   const barW   = dpi * 1.02;                   // wound bar spans T→P outer badge edges
   const barH   = dpi * 0.07;                   // wound bar height
-  const barCY  = y + offset - bSize / 2 - barH / 2; // wound bar sits just above badge top edge
-  const sw     = Math.max(1, dpi * 0.012);     // badge stroke width
+  // OBR shapes use top-left anchoring. barTopLeft and badgeTopLeft helpers
+  // convert from intended visual-centre coordinates to the top-left corner.
+  const barTopY = y + offset - bSize / 2 - barH; // bar sits just above badge top edge
+  const sw      = Math.max(1, dpi * 0.012);       // badge stroke width
 
   const tid = token.id;
   const id  = (s: string) => `${BUBBLE_PREFIX}/${combatant.id}/${s}`;
   const items: Item[] = [];
 
-  // ── Wound bar (bottom centre) ─────────────────────────────────────────────
+  // ── Wound bar (above badge row) ───────────────────────────────────────────
   const { current, max } = combatant.stats.wounds;
   const fillFrac = max > 0 ? Math.min(current / max, 1) : 0;
+  const barLeft = x - barW / 2; // left edge of bar (centred on token x)
 
   // Background bar
   items.push(
@@ -68,24 +71,23 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
         .id(id('bar-bg'))
         .shapeType('RECTANGLE')
         .width(barW).height(barH)
-        .position({ x, y: barCY })
+        .position({ x: barLeft, y: barTopY })
         .fillColor('#111111').fillOpacity(0.85)
         .strokeColor('#ffffff').strokeWidth(1).strokeOpacity(0.12),
       tid
     ).build() as Item
   );
 
-  // Fill bar (left-anchored within the bg bar)
+  // Fill bar (left-to-right from bar left edge)
   if (fillFrac > 0) {
-    const fillW  = barW * fillFrac;
-    const fillCX = x - barW / 2 + fillW / 2; // offset so fill starts at left edge
+    const fillW = barW * fillFrac;
     items.push(
       attach(
         buildShape()
           .id(id('bar-fill'))
           .shapeType('RECTANGLE')
           .width(fillW).height(barH)
-          .position({ x: fillCX, y: barCY })
+          .position({ x: barLeft, y: barTopY })
           .fillColor(fillFrac >= 1 ? '#7f0000' : '#c0392b').fillOpacity(1)
           .strokeOpacity(0),
         tid
@@ -94,6 +96,8 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
   }
 
   // ── Badge helper ──────────────────────────────────────────────────────────
+  // cx/cy are the INTENDED visual centres. Shapes use top-left, so we offset
+  // by -bSize/2 on both axes. Text uses the same offset so it stays centred.
 
   const addBadge = (
     suffix: string,
@@ -104,13 +108,14 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
     text: string, textColor: string,
     fontWeight = 700
   ) => {
+    const tl = { x: cx - bSize / 2, y: cy - bSize / 2 }; // top-left corner
     items.push(
       attach(
         buildShape()
           .id(id(`${suffix}-bg`))
           .shapeType(shape)
           .width(bSize).height(bSize)
-          .position({ x: cx, y: cy })
+          .position(tl)
           .fillColor(fillColor).fillOpacity(fillOpacity)
           .strokeColor(strokeColor).strokeWidth(sw).strokeOpacity(1),
         tid
@@ -118,7 +123,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
       attach(
         buildText()
           .id(id(`${suffix}-txt`))
-          .position({ x: cx, y: cy })
+          .position(tl)
           .width(bSize).height(bSize)
           .plainText(text)
           .textType('PLAIN')
