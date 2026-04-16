@@ -3,7 +3,7 @@
   "name": "Savage Deck",
   "description": "Action Deck initiative tracker for Savage Worlds Adventure Edition (SWADE). Handles jokers, edges, and hold-state for you.",
   "author": "Fumble Table",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "icon": "https://fumbletable.github.io/savage-deck/icon.svg",
   "action": {
     "title": "Savage Deck",
@@ -11,5 +11,8 @@
     "popover": "https://fumbletable.github.io/savage-deck/index.html",
     "height": 600,
     "width": 420
+  },
+  "background": {
+    "url": "https://fumbletable.github.io/savage-deck/background.html"
   }
 }

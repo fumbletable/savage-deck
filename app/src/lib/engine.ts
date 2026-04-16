@@ -1,4 +1,5 @@
 import type { SavageDeckState, Combatant, Edge } from './types';
+import { defaultStats } from './types';
 import type { CardCode } from './deck';
 import { shuffle, newDeck, isJoker, initiativeValue, rankValue } from './deck';
 
@@ -21,7 +22,7 @@ function nextId(): string {
 
 export function addCombatant(
   state: SavageDeckState,
-  input: { name: string; type: Combatant['type']; hiddenFromPlayers?: boolean; tokenId?: string; edges?: Edge[] }
+  input: { name: string; type: Combatant['type']; hiddenFromPlayers?: boolean; tokenId?: string; edges?: Edge[]; stats?: Combatant['stats'] }
 ): SavageDeckState {
   const combatant: Combatant = {
     id: nextId(),
@@ -32,6 +33,7 @@ export function addCombatant(
     edges: input.edges ?? [],
     status: 'PENDING',
     jokerBonus: false,
+    stats: input.stats ?? defaultStats(input.type),
   };
   return { ...state, combatants: [...state.combatants, combatant] };
 }
@@ -240,6 +242,50 @@ export function endRound(state: SavageDeckState): SavageDeckState {
     activeCombatantId: undefined,
   };
 }
+
+// ── Stat mutations ────────────────────────────────────────────────────────────
+
+export function setWounds(state: SavageDeckState, id: string, current: number): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  const clamped = Math.max(0, Math.min(current, c.stats.wounds.max));
+  return updateCombatant(state, id, { stats: { ...c.stats, wounds: { ...c.stats.wounds, current: clamped } } });
+}
+
+export function setMaxWounds(state: SavageDeckState, id: string, max: number): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  const safeMax = Math.max(1, max);
+  return updateCombatant(state, id, {
+    stats: { ...c.stats, wounds: { current: Math.min(c.stats.wounds.current, safeMax), max: safeMax } },
+  });
+}
+
+export function toggleShaken(state: SavageDeckState, id: string): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  return updateCombatant(state, id, { stats: { ...c.stats, shaken: !c.stats.shaken } });
+}
+
+export function setBennies(state: SavageDeckState, id: string, count: number): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  return updateCombatant(state, id, { stats: { ...c.stats, bennies: Math.max(0, count) } });
+}
+
+export function setToughness(state: SavageDeckState, id: string, base: number, armour: number): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  return updateCombatant(state, id, { stats: { ...c.stats, toughness: { base: Math.max(1, base), armour: Math.max(0, armour) } } });
+}
+
+export function setParry(state: SavageDeckState, id: string, parry: number): SavageDeckState {
+  const c = state.combatants.find((x) => x.id === id);
+  if (!c) return state;
+  return updateCombatant(state, id, { stats: { ...c.stats, parry: Math.max(1, parry) } });
+}
+
+// ── Display helpers ───────────────────────────────────────────────────────────
 
 export function sortedForDisplay(combatants: Combatant[]): Combatant[] {
   return [...combatants].sort((a, b) => {

@@ -1,8 +1,34 @@
 # Savage Deck — OBR Extension for Savage Worlds
 
-**Status:** Planning
+**Status:** Ready to build — v1 scaffold not yet started
 **Owner:** Damien (code) / Scott (first user)
 **Started:** 2026-04-12
+
+---
+
+## START HERE (fresh session entry point)
+
+**What this is:** Action Deck tracker for Savage Worlds in Owlbear Rodeo. Replaces Savage Bubbles (retired). Scott is the first user, running SW Pathfinder.
+
+**Architecture decision (locked 2026-04-16):**
+- Savage Bubbles retired. Deck absorbs its job.
+- **Popover** = initiative tracker + per-combatant stat editing (Wounds, Toughness, Parry, Shaken)
+- **Background script** = reads token metadata, renders stat bubbles on map tokens
+- **Token metadata key:** `com.fumbletable.savage-deck/stats`
+- **Deploy:** Cloudflare Pages (NOT GitHub Pages — Cloudflare was already the plan for Deck)
+
+**First task for the next build session:**
+1. Create the repo: `fumbletable/savage-deck` (use SSH alias `git@github-fumbletable:fumbletable/savage-deck.git`)
+2. Scaffold with Vite + React + TypeScript + OBR SDK v3 (same pattern as Savage Dice)
+3. Confirm popover opens and OBR role detection works (GM vs PLAYER)
+4. Implement combatant list with add/remove — no deck logic yet, just the data model
+5. Persist combatant list to OBR scene metadata
+
+**What's NOT built yet:** Everything. The repo doesn't exist. All the planning below is design/spec, not code.
+
+**Rules reference:** Verified SWADE rules in the "SWADE Rules" section below. Use these — don't guess.
+
+---
 
 ## SCOUT
 
@@ -144,14 +170,28 @@ All rules below pulled directly from the SWADE core rulebook (pp. 91–93, 101�
 
 ---
 
+## Architecture Decision (2026-04-16)
+
+Savage Bubbles is being retired. Savage Deck absorbs its functionality:
+
+- **Popover** = initiative tracker + per-combatant stat editing (Wounds, Toughness, Parry, Shaken)
+- **Background script** = reads token metadata, renders wound/stat bubbles on map tokens
+- **Token metadata schema** = `com.fumbletable.savage-deck/stats` — single source of truth
+
+This means one extension install covers initiative tracking AND on-map stat display. Savage Dice remains separate and will integrate at v2+ via shared broadcasts.
+
 ## v2+ Ideas (out of scope now, noted for later)
 
+- **Damage → wounds integration with Savage Dice** — Dice rolls damage, passes result to Deck, Deck calculates wounds against combatant's Toughness, updates token, bubbles re-render
+- **Toughness as target** — Deck passes a combatant's Toughness to Dice for damage calculation context
+- (Note: trait dice NOT integrated — those are character-sheet data, not token data)
 - Tactician / Master Tactician distribution UI
 - Chase cards (suit → complication/bonus)
 - Dramatic Tasks (action card spread)
 - Adventure Deck (separate tool, probably)
 - Interlude prompts
 - Combat log export (for session recap)
+- **Wound calculator** — damage total + Toughness → wounds output (lives in Deck, not Dice)
 
 ---
 

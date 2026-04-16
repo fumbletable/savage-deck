@@ -22,6 +22,12 @@ import {
   setActive,
   linkToken,
   unlinkToken,
+  setWounds,
+  setMaxWounds,
+  toggleShaken,
+  setBennies,
+  setToughness,
+  setParry,
 } from './lib/engine';
 import type { Combatant, Edge, SavageDeckState } from './lib/types';
 
@@ -249,6 +255,8 @@ function CombatantRow({
           </button>
         )}
       </div>
+      {isGm && editable && <StatSetupRow c={c} state={state} write={write} />}
+      {isGm && !editable && <StatActingRow c={c} state={state} write={write} />}
     </li>
   );
 }
@@ -319,6 +327,94 @@ function LinkTokenButton({
     <button className="link-btn" title="Link to selected map token" disabled={busy} onClick={onLink}>
       Link
     </button>
+  );
+}
+
+// ── Stat rows ─────────────────────────────────────────────────────────────────
+
+function StatSetupRow({
+  c,
+  state,
+  write,
+}: {
+  c: Combatant;
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+}) {
+  const s = c.stats;
+  return (
+    <div className="row-stats">
+      <label className="stat-field" title="Toughness: base (armour)">
+        <span className="stat-label">T</span>
+        <input
+          type="number" className="stat-input" value={s.toughness.base} min={1} max={20}
+          onChange={(e) => write(setToughness(state, c.id, +e.target.value, s.toughness.armour))}
+        />
+        <span className="stat-sep">(</span>
+        <input
+          type="number" className="stat-input" value={s.toughness.armour} min={0} max={10}
+          onChange={(e) => write(setToughness(state, c.id, s.toughness.base, +e.target.value))}
+        />
+        <span className="stat-sep">)</span>
+      </label>
+      <label className="stat-field" title="Parry">
+        <span className="stat-label">P</span>
+        <input
+          type="number" className="stat-input" value={s.parry} min={1} max={20}
+          onChange={(e) => write(setParry(state, c.id, +e.target.value))}
+        />
+      </label>
+      <label className="stat-field" title="Max wounds">
+        <span className="stat-label">W</span>
+        <input
+          type="number" className="stat-input" value={s.wounds.max} min={1} max={10}
+          onChange={(e) => write(setMaxWounds(state, c.id, +e.target.value))}
+        />
+      </label>
+      <label className="stat-field" title="Starting bennies">
+        <span className="stat-label">B</span>
+        <input
+          type="number" className="stat-input" value={s.bennies} min={0} max={10}
+          onChange={(e) => write(setBennies(state, c.id, +e.target.value))}
+        />
+      </label>
+    </div>
+  );
+}
+
+function StatActingRow({
+  c,
+  state,
+  write,
+}: {
+  c: Combatant;
+  state: SavageDeckState;
+  write: (s: SavageDeckState) => Promise<void>;
+}) {
+  const s = c.stats;
+  const toughTotal = s.toughness.base + s.toughness.armour;
+  return (
+    <div className="row-stats">
+      <span className="stat-counter" title="Wounds">
+        <button onClick={() => write(setWounds(state, c.id, s.wounds.current - 1))}>−</button>
+        <span className={`stat-val${s.wounds.current > 0 ? ' stat-wounded' : ''}`}>
+          {s.wounds.current}/{s.wounds.max}
+        </span>
+        <button onClick={() => write(setWounds(state, c.id, s.wounds.current + 1))}>+</button>
+      </span>
+      <button
+        className={`stat-shaken${s.shaken ? ' active' : ''}`}
+        title="Shaken"
+        onClick={() => write(toggleShaken(state, c.id))}
+      >S</button>
+      <span className="stat-counter" title="Bennies">
+        <button onClick={() => write(setBennies(state, c.id, s.bennies - 1))}>−</button>
+        <span className="stat-val">{s.bennies}♦</span>
+        <button onClick={() => write(setBennies(state, c.id, s.bennies + 1))}>+</button>
+      </span>
+      <span className="stat-passive" title={`Toughness ${s.toughness.base}(${s.toughness.armour})`}>T{toughTotal}</span>
+      <span className="stat-passive" title="Parry">P{s.parry}</span>
+    </div>
   );
 }
 

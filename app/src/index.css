@@ -242,3 +242,81 @@ input { flex: 1; }
   line-height: 1.6;
 }
 .legend strong { color: #b8b8bd; font-weight: 600; }
+
+/* ── Stat rows ───────────────────────────────────────────────────────────── */
+
+.row-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  padding-top: 2px;
+  border-top: 1px solid #2e2e33;
+}
+
+/* Setup: labelled number inputs */
+.stat-field {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #8a8a90;
+  cursor: default;
+}
+.stat-label {
+  font-weight: 600;
+  color: #a8a8ae;
+  font-size: 10px;
+}
+.stat-input {
+  width: 34px;
+  padding: 1px 4px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.stat-input::-webkit-inner-spin-button,
+.stat-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.stat-sep { color: #4a4a52; font-size: 10px; }
+
+/* Acting: +/- counters */
+.stat-counter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.stat-counter button {
+  padding: 1px 5px;
+  font-size: 12px;
+  background: #2e2e33;
+  border-color: #3a3a42;
+  min-width: 20px;
+  line-height: 1;
+}
+.stat-val {
+  font-size: 11px;
+  min-width: 30px;
+  text-align: center;
+  color: #c8c8ce;
+}
+.stat-wounded { color: #e07060; }
+
+.stat-shaken {
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #2e2e33;
+  border-color: #3a3a42;
+  color: #8a8a90;
+}
+.stat-shaken.active {
+  background: #b88010;
+  border-color: #d09020;
+  color: #000;
+}
+
+/* Passive T/P display in acting view */
+.stat-passive {
+  font-size: 10px;
+  color: #6a6a72;
+  padding: 0 2px;
+}

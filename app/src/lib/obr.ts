@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import OBR, { buildShape } from '@owlbear-rodeo/sdk';
-import { METADATA_KEY, initialState, type SavageDeckState } from './types';
+import { METADATA_KEY, initialState, migrateState, defaultStats, type SavageDeckState } from './types';
 import { newDeck, shuffle } from './deck';
 
 const RING_ID_PREFIX = 'savage-deck/active-ring';
@@ -38,12 +38,10 @@ export function useSharedState(ready: boolean): {
   useEffect(() => {
     if (!ready) return;
     OBR.room.getMetadata().then((meta) => {
-      const existing = meta[METADATA_KEY] as SavageDeckState | undefined;
-      setState(existing ?? null);
+      setState(migrateState(meta[METADATA_KEY]) ?? null);
     });
     return OBR.room.onMetadataChange((meta) => {
-      const next = meta[METADATA_KEY] as SavageDeckState | undefined;
-      setState(next ?? null);
+      setState(migrateState(meta[METADATA_KEY]) ?? null);
     });
   }, [ready]);
 
@@ -111,6 +109,7 @@ async function handleAddFromContext(
           edges: [],
           status: 'PENDING',
           jokerBonus: false,
+          stats: defaultStats(type),
         },
       ],
     };
