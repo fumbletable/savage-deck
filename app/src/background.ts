@@ -109,14 +109,16 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
     text: string, textColor: string,
     fontWeight = 700
   ) => {
-    const tl = { x: cx - bSize / 2, y: cy - bSize / 2 }; // top-left corner for shape
+    const tl = { x: cx - bSize / 2, y: cy - bSize / 2 }; // top-left (rectangles)
+    // OBR circles are centre-anchored; rectangles are top-left-anchored
+    const shapePos = shape === 'CIRCLE' ? { x: cx, y: cy } : tl;
     items.push(
       attach(
         buildShape()
           .id(id(`${suffix}-bg`))
           .shapeType(shape)
           .width(bSize).height(bSize)
-          .position(tl)
+          .position(shapePos)
           .fillColor(fillColor).fillOpacity(fillOpacity)
           .strokeColor(strokeColor).strokeWidth(sw).strokeOpacity(1),
         tid
