@@ -134,8 +134,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
           .fontWeight(fontWeight)
           .textAlign('CENTER')
           .textAlignVertical('MIDDLE')
-          .lineHeight(1)
-          .padding(2),
+          .lineHeight(1),
         tid
       ).build() as Item
     );

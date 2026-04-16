@@ -311,9 +311,9 @@ input { flex: 1; }
   color: #8a8a90;
 }
 .stat-shaken.active {
-  background: #b88010;
-  border-color: #d09020;
-  color: #000;
+  background: #c0392b;
+  border-color: #8b0000;
+  color: #ffffff;
 }
 
 /* Passive T/P display in acting view */
@@ -322,3 +322,9 @@ input { flex: 1; }
   color: #6a6a72;
   padding: 0 2px;
 }
+.stat-passive.stat-label-t { color: #e8a050; }
+.stat-passive.stat-label-p { color: #50c8e8; }
+
+/* Benny counter */
+.benny-btn { color: #c9a800; border-color: #4a4420; }
+.benny-btn:hover { color: #e8c800; }
