@@ -48,7 +48,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
   const offset = dpi * 0.40;                   // token centre → badge centre
   const bSize  = dpi * 0.22;                   // badge width/height
   const fs     = Math.round(dpi * 0.13);       // font size
-  const barW   = dpi * 0.38;                   // wound bar total width
+  const barW   = dpi * 0.80;                   // wound bar total width (spans badge centres)
   const barH   = dpi * 0.07;                   // wound bar height
   const barCY  = y + offset * 1.02;            // wound bar centre Y
   const sw     = Math.max(1, dpi * 0.012);     // badge stroke width

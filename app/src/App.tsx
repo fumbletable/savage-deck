@@ -345,7 +345,7 @@ function StatSetupRow({
   return (
     <div className="row-stats">
       <label className="stat-field" title="Toughness: base (armour)">
-        <span className="stat-label">T</span>
+        <span className="stat-label stat-label-t">T</span>
         <input
           type="number" className="stat-input" value={s.toughness.base} min={1} max={20}
           onChange={(e) => write(setToughness(state, c.id, +e.target.value, s.toughness.armour))}
@@ -358,7 +358,7 @@ function StatSetupRow({
         <span className="stat-sep">)</span>
       </label>
       <label className="stat-field" title="Parry">
-        <span className="stat-label">P</span>
+        <span className="stat-label stat-label-p">P</span>
         <input
           type="number" className="stat-input" value={s.parry} min={1} max={20}
           onChange={(e) => write(setParry(state, c.id, +e.target.value))}
@@ -412,8 +412,8 @@ function StatActingRow({
         <span className="stat-val">{s.bennies}♦</span>
         <button onClick={() => write(setBennies(state, c.id, s.bennies + 1))}>+</button>
       </span>
-      <span className="stat-passive" title={`Toughness ${s.toughness.base}(${s.toughness.armour})`}>T{toughTotal}</span>
-      <span className="stat-passive" title="Parry">P{s.parry}</span>
+      <span className="stat-passive stat-label-t" title={`Toughness ${s.toughness.base}(${s.toughness.armour})`}>T{toughTotal}</span>
+      <span className="stat-passive stat-label-p" title="Parry">P{s.parry}</span>
     </div>
   );
 }
