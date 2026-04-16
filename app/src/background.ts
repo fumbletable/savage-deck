@@ -50,7 +50,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
   const fs     = Math.round(dpi * 0.13);       // font size
   const barW   = dpi * 1.02;                   // wound bar spans T→P outer badge edges
   const barH   = dpi * 0.07;                   // wound bar height
-  const barCY  = y + offset * 1.02;            // wound bar centre Y
+  const barCY  = y + offset - bSize / 2;        // wound bar sits at top of badge row
   const sw     = Math.max(1, dpi * 0.012);     // badge stroke width
 
   const tid = token.id;
@@ -118,7 +118,7 @@ function buildBubbles(combatant: Combatant, token: Item, dpi: number): Item[] {
       attach(
         buildText()
           .id(id(`${suffix}-txt`))
-          .position({ x: cx, y: cy })
+          .position({ x: cx - bSize / 2, y: cy - bSize / 2 })
           .width(bSize).height(bSize)
           .plainText(text)
           .textType('PLAIN')
